@@ -148,7 +148,6 @@ def wohnbedarf_eltern_anteil(
     # Add defaults. Is is really necessary or are the former conditions exhaustive?
     conditions.append(True)
     choices.append(1)
-
     anteil = pd.Series(index=tu_id.index, data=np.select(conditions, choices))
 
     return anteil

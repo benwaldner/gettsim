@@ -240,7 +240,7 @@ def entgeltpunkte_lohn(
     """
 
     # Scale bruttolohn up if earned in eastern Germany
-    bruttolohn_scaled_east = bruttolohn_m
+    bruttolohn_scaled_east = bruttolohn_m.copy()
     bruttolohn_scaled_east.loc[wohnort_ost] = (
         bruttolohn_scaled_east.loc[wohnort_ost]
         * ges_renten_vers_params["umrechnung_entgeltp_beitrittsgebiet"]

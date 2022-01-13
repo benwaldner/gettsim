@@ -76,6 +76,7 @@ def in_gleitzone(
     -------
     BoolSeries indicating individual's income is in midi-job range.
     """
+
     return (
         bruttolohn_m <= soz_vers_beitr_params["geringfügige_eink_grenzen"]["midi_job"]
     ) & (~geringfügig_beschäftigt)

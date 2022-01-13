@@ -192,14 +192,12 @@ def kinderzuschlag_eink_min(
     """
     hat_kinder_hh = kind.groupby(hh_id).transform("any")
     is_alleinerziehend_hh = alleinerziehend.groupby(hh_id).transform("all")
-
     conditions = [~hat_kinder_hh, is_alleinerziehend_hh, ~is_alleinerziehend_hh]
     choices = [
         0,
         kinderzuschlag_params["kinderzuschlag_min_eink_alleinerz"],
         kinderzuschlag_params["kinderzuschlag_min_eink_paare"],
     ]
-
     return pd.Series(index=hh_id.index, data=np.select(conditions, choices))
 
 

@@ -112,7 +112,9 @@ def wohngeld_abzüge_tu(
 
     """
     abzug_stufen = (
-        (eink_st_tu > 0) * 1 + (rentenv_beitr_m_tu > 0) + (ges_krankenv_beitr_m_tu > 0)
+        (eink_st_tu > 0).astype(int)
+        + (rentenv_beitr_m_tu > 0).astype(int)
+        + (ges_krankenv_beitr_m_tu > 0).astype(int)
     )
     return abzug_stufen.replace(wohngeld_params["abzug_stufen"])
 

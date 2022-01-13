@@ -185,9 +185,36 @@ def vorsorge_bis_2004(
 
     """
 
+    def berechne_vorsorge_bis_2004(
+        lohn_vorsorge,
+        krankenv_beitr,
+        rentenv_beitr,
+        anzahl_erwachsene,
+        eink_st_abzuege_params,
+    ) -> FloatSeries:
+        """Calcaulate vorsoge expenditures until 2004 for a given number of adults
+
+        """
+        item_1 = (1 / anzahl_erwachsene) * (
+            12 * (rentenv_beitr + krankenv_beitr) - lohn_vorsorge
+        ).clip(lower=0)
+
+        item_2 = (1 / anzahl_erwachsene) * item_1.clip(
+            upper=eink_st_abzuege_params["vorsorge_2004_grundhöchstbetrag"]
+        )
+
+        item_3 = 0.5 * (item_1 - item_2).clip(
+            upper=anzahl_erwachsene
+            * eink_st_abzuege_params["vorsorge_2004_grundhöchstbetrag"]
+        )
+
+        out = (lohn_vorsorge + item_2 + item_3).astype(int)
+        return out
+
     out = ges_krankenv_beitr_m * 0
+
     out.loc[~gemeinsam_veranlagt & ~kind] = berechne_vorsorge_bis_2004(
-        lohn_vorsorge_bis_2019_single.loc[~kind],
+        lohn_vorsorge_bis_2019_single.loc[~gemeinsam_veranlagt & ~kind],
         ges_krankenv_beitr_m.loc[~gemeinsam_veranlagt & ~kind],
         rentenv_beitr_m.loc[~gemeinsam_veranlagt & ~kind],
         1,
@@ -195,7 +222,7 @@ def vorsorge_bis_2004(
     )
 
     vorsorge_tu = berechne_vorsorge_bis_2004(
-        lohn_vorsorgeabzug_bis_2019_tu,
+        lohn_vorsorgeabzug_bis_2019_tu.loc[gemeinsam_veranlagte_tu],
         ges_krankenv_beitr_m_tu.loc[gemeinsam_veranlagte_tu],
         rentenv_beitr_m_tu.loc[gemeinsam_veranlagte_tu],
         2,
@@ -212,7 +239,7 @@ def lohn_vorsorge_bis_2019_single(
     gemeinsam_veranlagt: BoolSeries,
     eink_st_abzuege_params: dict,
 ) -> FloatSeries:
-    """Calcaulate vorsoge expenditures until 2019 for singles.
+    """Calculate vorsoge expenditures until 2019 for singles.
 
     Parameters
     ----------
@@ -262,45 +289,4 @@ def lohn_vorsorgeabzug_bis_2019_tu(
         * 12
         * bruttolohn_m_tu.loc[gemeinsam_veranlagte_tu]
     ).clip(lower=0)
-    return out
-
-
-def berechne_vorsorge_bis_2004(
-    lohn_vorsorge: FloatSeries,
-    krankenv_beitr: FloatSeries,
-    rentenv_beitr: FloatSeries,
-    anzahl_erwachsene: IntSeries,
-    eink_st_abzuege_params: dict,
-) -> FloatSeries:
-    """Calcaulate vorsoge expenditures until 2004.
-
-    Parameters
-    ----------
-    lohn_vorsorge
-        See :func:`lohn_vorsorge`.
-    krankenv_beitr
-        See :func:`krankenv_beitr`.
-    rentenv_beitr
-        See :func:`rentenv_beitr`.
-    anzahl_erwachsene
-        See :func:`anzahl_erwachsene`.
-    eink_st_abzuege_params
-        See params documentation :ref:`eink_st_abzuege_params <eink_st_abzuege_params>`.
-
-    Returns
-    -------
-
-    """
-    item_1 = (1 / anzahl_erwachsene) * (
-        12 * (rentenv_beitr + krankenv_beitr) - lohn_vorsorge
-    ).clip(lower=0)
-    item_2 = (1 / anzahl_erwachsene) * item_1.clip(
-        upper=eink_st_abzuege_params["vorsorge_2004_grundhöchstbetrag"]
-    )
-
-    item_3 = 0.5 * (item_1 - item_2).clip(
-        upper=anzahl_erwachsene
-        * eink_st_abzuege_params["vorsorge_2004_grundhöchstbetrag"]
-    )
-    out = (lohn_vorsorge + item_2 + item_3).astype(int)
     return out
